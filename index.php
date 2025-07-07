@@ -12,208 +12,89 @@ if (isLoggedIn()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Calauan Scheduler</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #800080;
-            --primary-dark: #6a006a;
-            --bg-light: #f9f9f9;
-            --text-color: #333;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: var(--primary-color);
-            padding: 1.2rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .logo-img {
-            height: 50px;
-            width: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .logo-img:hover {
-            transform: scale(1.05);
-        }
-
-        .logo-text {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: white;
-            text-decoration: none;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background 0.3s ease;
-            font-weight: 500;
-        }
-
-        nav a:hover {
-            background-color: var(--primary-dark);
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 3rem 2rem;
-        }
-
-        .hero-card {
-            background: white;
-            padding: 3rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-            animation: fadeIn 1s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        p {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            color: #555;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            margin: 0.5rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            background-color: var(--primary-color);
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.3s ease;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        footer {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 1rem 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .header-left {
-                gap: 0.5rem;
-            }
-            
-            .logo-container {
-                gap: 0.5rem;
-            }
-            
-            .logo-img {
-                height: 40px;
-            }
-            
-            .logo-text {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .hero-card {
-                padding: 2rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .logo-img {
-                height: 35px;
-            }
-            
-            .logo-text {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <div class="header-left">
-        <div class="logo-container">
-            <img src="logo.png" alt="Calauan Logo 1" class="logo-img">
-            
-            <img src="logo1.png" alt="Calauan Logo 2" class="logo-img">
-            <a href="#" class="logo-text">Calauan Scheduler</a>
+<div class="container">
+    <!-- Header Section -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="logos/logo.png" alt="Calauan Logo 1">
+            </div>
+            <div class="title-section">
+                <h1>Calauan Scheduler</h1>
+                <p class="subtitle">Municipality of Calauan - Official Scheduling System</p>
+            </div>
+            <div class="logo">
+                <img src="logos/logo3.png" alt="Calauan Logo 2">
+            </div>
         </div>
     </div>
-    <nav>
-        <a href="login.php">Login</a>
-        <a href="register.php" class="btn">Register</a>
-    </nav>
-</header>
 
-<main>
-    <div class="hero-card">
-        <h1>Welcome to Calauan's Official Scheduler</h1>
-        <p>Efficiently manage appointments and schedules for our municipality. Built with our community in mind.</p>
-        <a href="register.php" class="btn">Get Started</a>
-        <a href="login.php" class="btn">Login</a>
+    <!-- User Info Section -->
+    <div class="user-info">
+        <div class="welcome-text">
+            Welcome to Calauan's Official Scheduling System
+        </div>
+        <div class="nav-links">
+            <a href="login.php" class="nav-link">Login</a>
+            <a href="register.php" class="nav-link">Register</a>
+        </div>
     </div>
-</main>
 
-<footer>
-    &copy; <?= date('Y') ?> Calauan Municipality | All rights reserved.
-</footer>
+    <!-- Main Content -->
+    <div class="form-container">
+        <div class="hero-card">
+            <h1>Efficiently Manage Municipal Appointments</h1>
+            <p>Welcome to the official scheduling system for the Municipality of Calauan. Our platform is designed to streamline appointment management and improve service delivery for our community.</p>
+            
+            <div class="button-group">
+                <a href="register.php" class="btn btn-primary">Get Started</a>
+                <a href="login.php" class="btn btn-secondary">Login</a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div style="margin-top: 50px;">
+            <h2 class="page-title">Why Choose Calauan Scheduler?</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px;">
+                <div class="event-info">
+                    <h3>📅 Easy Scheduling</h3>
+                    <p>Book appointments with municipal offices quickly and efficiently. Our intuitive calendar system makes scheduling a breeze.</p>
+                </div>
+                
+                <div class="event-info">
+                    <h3>🏛️ Official Platform</h3>
+                    <p>This is the official scheduling system for Calauan Municipality, ensuring secure and reliable service for all residents.</p>
+                </div>
+                
+                <div class="event-info">
+                    <h3>📱 Mobile Friendly</h3>
+                    <p>Access your appointments anywhere, anytime. Our responsive design works perfectly on all devices.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: var(--primary-light); border-radius: var(--border-radius-large); border: 2px solid var(--primary-border);">
+            <h3 style="color: var(--primary-color); margin-bottom: 20px;">Ready to Get Started?</h3>
+            <p style="color: var(--text-muted); margin-bottom: 25px;">Join the Calauan community and start managing your municipal appointments today.</p>
+            <div class="button-group">
+                <a href="register.php" class="btn btn-primary">Create Account</a>
+                <a href="login.php" class="btn btn-secondary">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align: center; padding: 30px; color: var(--text-muted); background: var(--background-color); margin-top: 40px;">
+    <p>&copy; <?= date('Y') ?> Municipality of Calauan | All rights reserved.</p>
+    <p style="margin-top: 10px; font-size: 0.9rem;">Serving the Community with Excellence</p>
+</div>
 
 </body>
 </html>

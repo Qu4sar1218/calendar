@@ -26,9 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $pdo->prepare("INSERT INTO events (user_id, title, description, event_date, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$_SESSION['user_id'], $title, $description, $event_date, $start_time, $end_time]);
             
-            $success = 'Event added successfully!';
-            // Clear form
-            $_POST = [];
+            // Redirect to calendar.php after successful event addition
+            header('Location: calendar.php?added=1');
+            exit;
+            
         } catch(PDOException $e) {
             $error = 'Failed to add event. Please try again.';
         }
@@ -42,348 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Event - Municipality of Calauan</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 600px;
-            width: 100%;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(128, 0, 128, 0.1);
-            overflow: hidden;
-            animation: slideUp 0.6s ease forwards;
-        }
-        
-        .header {
-            background-color: #800080;
-            color: white;
-            padding: 20px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .header-content {
-            text-align: center;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .header h1 {
-            font-size: 1.5rem;
-            margin: 0;
-        }
-        
-        .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .title-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .logo {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-        
-        .logo:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
-        }
-        
-        .logo img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-        }
-        
-        .user-info {
-            background-color: #9a0f9a;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
-        
-        .nav-links a {
-            color: white;
+        /* Additional styles for logout button */
+        .nav-links a[href="logout.php"] {
+            background-color: #dc3545;
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 4px;
             text-decoration: none;
-            margin-left: 15px;
-            padding: 8px 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
         }
         
-        .nav-links a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        .form-container {
-            padding: 30px;
-        }
-        
-        .form-title {
-            color: #800080;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95rem;
-        }
-        
-        input[type="text"], 
-        input[type="date"], 
-        input[type="time"], 
-        textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background-color: #fafafa;
-        }
-        
-        input[type="text"]:focus, 
-        input[type="date"]:focus, 
-        input[type="time"]:focus, 
-        textarea:focus {
-            outline: none;
-            border-color: #800080;
-            background-color: white;
-            box-shadow: 0 0 0 3px rgba(128, 0, 128, 0.1);
-        }
-        
-        textarea {
-            height: 100px;
-            resize: vertical;
-            font-family: inherit;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background-color: #800080;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #660066;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(128, 0, 128, 0.3);
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #545b62;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-        
-        .alert {
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .alert-error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        
-        .alert-success {
-            background-color: #d1edff;
-            border: 1px solid #b8daff;
-            color: #0c5460;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                margin: 10px;
-            }
-            
-            .header {
-                padding: 15px 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .title-section {
-                order: 1;
-            }
-            
-            .logo {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-            
-            .header h1 {
-                font-size: 1.3rem;
-            }
-            
-            .subtitle {
-                font-size: 0.8rem;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            .nav-links a {
-                margin: 0 5px;
-                font-size: 0.8rem;
-                padding: 6px 12px;
-            }
-            
-            .form-container {
-                padding: 20px;
-            }
-            
-            .form-title {
-                font-size: 1.1rem;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .button-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .btn {
-                width: 100%;
-                padding: 12px;
-                font-size: 0.95rem;
-            }
-        }
-        
-        /* Custom date and time input styling */
-        input[type="date"]::-webkit-calendar-picker-indicator,
-        input[type="time"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.6);
-            cursor: pointer;
-        }
-        
-        input[type="date"]::-webkit-calendar-picker-indicator:hover,
-        input[type="time"]::-webkit-calendar-picker-indicator:hover {
-            filter: invert(0.4);
+        .nav-links a[href="logout.php"]:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -393,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="header-content">
                 <!-- Left Logo -->
                 <div class="logo">
-                    <img src="logo.png" alt="Municipality Logo">
+                    <img src="logos/logo.png" alt="Municipality Logo">
                 </div>
                 
                 <!-- Title Section -->
@@ -404,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <!-- Right Logo -->
                 <div class="logo">
-                    <img src="logo1.png" alt="Secondary Logo">
+                    <img src="logos/logo3.png" alt="Secondary Logo">
                 </div>
             </div>
         </div>
@@ -412,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="user-info">
             <div>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</div>
             <div class="nav-links">
-                <a href="calendar.php">← Back to Calendar</a>
                 <a href="logout.php">Logout</a>
             </div>
         </div>
@@ -424,34 +96,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
             
-            <?php if ($success): ?>
-                <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-            <?php endif; ?>
-            
             <form method="POST">
                 <div class="form-group">
-                    <label for="title">Event Title</label>
-                    <input type="text" name="title" id="title" value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required placeholder="Enter event title">
+                    <label for="title">Event Title *</label>
+                    <input type="text"  name="title" id="title" value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required placeholder="Enter event title">
                 </div>
                 
                 <div class="form-group">
-                    <label for="description">Description</label>
+                    <label for="description">Description </label>
                     <textarea name="description" id="description" placeholder="Enter event description (optional)"><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label for="event_date">Event Date</label>
+                    <label for="event_date">Event Date *</label>
                     <input type="date" name="event_date" id="event_date" value="<?php echo htmlspecialchars($_POST['event_date'] ?? date('Y-m-d')); ?>" required>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="start_time">Start Time</label>
+                        <label for="start_time">Start Time *</label>
                         <input type="time" name="start_time" id="start_time" value="<?php echo htmlspecialchars($_POST['start_time'] ?? ''); ?>" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="end_time">End Time</label>
+                        <label for="end_time">End Time *</label>
                         <input type="time" name="end_time" id="end_time" value="<?php echo htmlspecialchars($_POST['end_time'] ?? ''); ?>" required>
                     </div>
                 </div>

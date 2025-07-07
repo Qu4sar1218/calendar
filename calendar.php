@@ -10,15 +10,19 @@ if (!isLoggedIn()) {
 // Handle delete event
 if (isset($_GET['delete_event']) && $_GET['delete_event']) {
     $eventId = (int)$_GET['delete_event'];
-    
+
     try {
         $stmt = $pdo->prepare("DELETE FROM events WHERE id = ? AND user_id = ?");
         $stmt->execute([$eventId, $_SESSION['user_id']]);
-        $success = 'Event deleted successfully!';
+
+        // Redirect to remove the GET parameter and refresh data
+        header("Location: calendar.php?deleted=1");
+        exit;
     } catch (PDOException $e) {
         $errors[] = 'Error deleting event: ' . $e->getMessage();
     }
 }
+
 
 // Get current month and year
 $month = isset($_GET['month']) ? (int)$_GET['month'] : date('n');
@@ -75,497 +79,7 @@ if ($nextMonth > 12) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar - Municipality of Calauan</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(128, 0, 128, 0.1);
-            overflow: hidden;
-        }
-        
-        .header {
-            background-color: #800080;
-            color: white;
-            padding: 20px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .header-content {
-            text-align: center;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .header h1 {
-            font-size: 1.8rem;
-            margin: 0;
-        }
-        
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-        
-        .title-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .logo {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-        
-        .logo:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
-        }
-        
-        .logo img {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-        }
-        
-        .user-info {
-            background-color: #9a0f9a;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            padding: 8px 15px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-links a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .month-nav {
-            padding: 20px 30px;
-            background-color: #f8f4ff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #800080;
-        }
-        
-        .month-nav h2 {
-            color: #800080;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .nav-btn {
-            background-color: #800080;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-btn:hover {
-            background-color: #660066;
-            transform: translateY(-2px);
-        }
-        
-        .calendar-container {
-            padding: 30px;
-        }
-        
-        .calendar {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .calendar th {
-            background-color: #800080;
-            color: white;
-            padding: 15px 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-        
-        .calendar td {
-            height: 120px;
-            width: 14.28%;
-            border: 1px solid #e0e0e0;
-            vertical-align: top;
-            position: relative;
-            background-color: white;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .calendar td:hover {
-            background-color: #f8f4ff;
-            box-shadow: 0 2px 8px rgba(128, 0, 128, 0.15);
-        }
-        
-        .day-number {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #333;
-            padding: 8px;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        
-        .event {
-            background-color: #800080;
-            color: white;
-            padding: 4px 8px;
-            margin: 30px 5px 2px 5px;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeIn 0.5s ease forwards;
-            position: relative;
-        }
-        
-        .event:hover {
-            background-color: #660066;
-            transform: translateX(3px);
-        }
-        
-        .event:nth-child(even) {
-            background-color: #9a0f9a;
-        }
-        
-        .event:nth-child(3n) {
-            background-color: #b300b3;
-        }
-        
-        .event-actions {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            display: none;
-            gap: 2px;
-        }
-        
-        .event:hover .event-actions {
-            display: flex;
-        }
-        
-        .event-btn {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            font-size: 10px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .edit-btn {
-            background-color: #28a745;
-        }
-        
-        .delete-btn {
-            background-color: #dc3545;
-        }
-        
-        .empty-day {
-            background-color: #f8f8f8 !important;
-            cursor: default !important;
-        }
-        
-        .empty-day:hover {
-            background-color: #f8f8f8 !important;
-            box-shadow: none !important;
-        }
-        
-        .today {
-            background-color: #fff0ff !important;
-            border: 2px solid #800080 !important;
-        }
-        
-        .today .day-number {
-            background-color: #800080;
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-        }
-        
-        .add-event-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #800080;
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(128, 0, 128, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .add-event-btn:hover {
-            background-color: #660066;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(128, 0, 128, 0.4);
-        }
-        
-        .success-message {
-            background-color: #e6ffe6;
-            border: 1px solid #99ff99;
-            color: #006600;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 30px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .error-messages {
-            background-color: #ffe6e6;
-            border: 1px solid #ff9999;
-            color: #cc0000;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 30px;
-        }
-
-        /* Tooltip Styles */
-        .event-tooltip {
-            position: absolute;
-            background-color: #333;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 12px;
-            line-height: 1.4;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            min-width: 200px;
-            max-width: 300px;
-        }
-        
-        .event-tooltip.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .event-tooltip::before {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 20px;
-            border: 8px solid transparent;
-            border-top-color: #333;
-        }
-        
-        .tooltip-title {
-            font-weight: bold;
-            font-size: 13px;
-            margin-bottom: 6px;
-            color: #fff;
-        }
-        
-        .tooltip-time {
-            color: #ccc;
-            margin-bottom: 6px;
-            font-size: 11px;
-        }
-        
-        .tooltip-description {
-            color: #e0e0e0;
-            font-size: 11px;
-            line-height: 1.3;
-        }
-        
-        /* Smooth animations */
-        .calendar-container {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: slideUp 0.6s ease forwards;
-        }
-        
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-        
-        .calendar td {
-            animation: fadeInCell 0.4s ease forwards;
-        }
-        
-        @keyframes fadeInCell {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-            }
-            
-            .header {
-                padding: 15px 20px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .title-section {
-                order: 1;
-            }
-            
-            .logo {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-            
-            .header h1 {
-                font-size: 1.4rem;
-            }
-            
-            .subtitle {
-                font-size: 0.9rem;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            .nav-links a {
-                margin: 0 10px;
-            }
-            
-            .month-nav {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .month-nav h2 {
-                font-size: 1.3rem;
-            }
-            
-            .calendar-container {
-                padding: 20px;
-            }
-            
-            .calendar td {
-                height: 80px;
-            }
-            
-            .calendar th {
-                padding: 10px 5px;
-                font-size: 0.8rem;
-            }
-            
-            .day-number {
-                font-size: 0.9rem;
-                padding: 5px;
-            }
-            
-            .event {
-                font-size: 9px;
-                margin: 25px 3px 1px 3px;
-                padding: 3px 5px;
-            }
-            
-            .add-event-btn {
-                bottom: 20px;
-                right: 20px;
-                padding: 12px 20px;
-                font-size: 0.9rem;
-            }
-
-            .event-tooltip {
-                font-size: 11px;
-                min-width: 180px;
-                max-width: 250px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -573,7 +87,7 @@ if ($nextMonth > 12) {
             <div class="header-content">
                 <!-- Left Logo -->
                 <div class="logo">
-                    <img src="logo.png" alt="Left Logo" class="logo-img">
+                    <img src="logos/logo.png" alt="Left Logo" class="logo-img">
                 </div>
                 
                 <!-- Title Section -->
@@ -583,17 +97,17 @@ if ($nextMonth > 12) {
                 </div>
                 
                 <!-- Right Logo -->
-                <div class="logo">
-                    <img src="logo1.png" alt="Right Logo" class="logo-img">
+                <div class="logo"> 
+                    <img src="logos/logo3.png" alt="Right Logo" class="logo-img">
                 </div>
             </div>
         </div>
 
         <div class="user-info">
-            <div>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</div>
+            <div class="welcome-text">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</div>
             <div class="nav-links">
-                <a href="add_event.php">Add Event</a>
-                <a href="logout.php">Logout</a>
+                <a href="add_event.php" class="nav-link">Add Event</a>
+                <a href="logout.php" class="nav-link">Logout</a>
             </div>
         </div>
 
@@ -694,14 +208,16 @@ if ($nextMonth > 12) {
         </div>
     </div>
 
-    <a href="add_event.php" class="add-event-btn">+ Add Event</a>
+    <!-- Fixed Add Event Button -->
+    <div class="add-event-btn-container">
+        <a href="add_event.php" class="add-event-btn">+ Add Event</a> 
+    </div>
 
     <!-- Tooltip element -->
     <div class="event-tooltip" id="eventTooltip">
         <div class="tooltip-title"></div>
         <div class="tooltip-time"></div>
         <div class="tooltip-description"></div>
-        
     </div>
 
     <script>
