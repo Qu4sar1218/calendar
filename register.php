@@ -1,5 +1,5 @@
 <?php
-// File: register.php rawr
+// File: register.php 
 require_once 'config.php';
 
 $error = '';
