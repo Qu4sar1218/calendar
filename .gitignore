@@ -1,0 +1,38 @@
+# 🛡️ Ignore environment files
+.env
+
+# 📁 Ignore Composer dependencies (in case you add vendor/)
+vendor/
+
+# 💻 Ignore IDE/editor-specific settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 🧹 OS/system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 🧪 Testing files
+.phpunit.result.cache
+
+# 📝 Log/cache/temp/backup files
+*.log
+*.tmp
+*.bak
+*.cache
+*~
+
+# 💾 Database dumps (optional)
+*.sql
+*.sqlite
+
+# 📂 User-generated/media folders (optional)
+uploads/
+storage/
+public/uploads/
+
+# 🚫 Prevent ignoring style.css or logos/
+# (These are safe because you're not using wildcards or extensions)

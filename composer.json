@@ -1,0 +1,12 @@
+{
+  "name": "yourname/calendar-project",
+  "description": "Simple PHP calendar system with environment support",
+  "require": {
+    "vlucas/phpdotenv": "^5.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  }
+}
